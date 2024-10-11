@@ -52,7 +52,7 @@ function App() {
               return document.getElementById('btn-group1');
             },
             renderContent: () => {
-              return "夢，我不行了";
+              return "oi 小鬼";
             },
             placement: 'bottom'
           },
@@ -61,7 +61,7 @@ function App() {
               return document.getElementById('btn-group2');
             },
             renderContent: () => {
-              return "躺在擔架上，大家都微笑著，地下道被鎖住了";
+              return "感觉有点火热了呢";
             },
             placement: 'bottom'
           },
@@ -70,7 +70,7 @@ function App() {
               return document.getElementById('btn-group3');
             },
             renderContent: () => {
-              return "我問我自己，這裡是死亡嗎？";
+              return "是时候要冷静下来了";
             },
             placement: 'bottom'
           }

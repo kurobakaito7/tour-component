@@ -6,18 +6,18 @@ import { TooltipPlacement } from 'antd/es/tooltip';
 import './index.scss';
 
 export interface TourStepConfig {
-    selector: () => HTMLElement | null;
-  
-    placement?: TooltipPlacement;
-  
-    renderContent?: (currentStep: number) => React.ReactNode;
-  
-    beforeForward?: (currentStep: number) => void;
-  
-    beforeBack?: (currentStep: number) => void;
+  selector: () => HTMLElement | null;
+
+  placement?: TooltipPlacement;
+
+  renderContent?: (currentStep: number) => React.ReactNode;
+
+  beforeForward?: (currentStep: number) => void;
+
+  beforeBack?: (currentStep: number) => void;
 }
 
-  
+
 export interface TourProps {
   step?: number;
 
@@ -28,7 +28,7 @@ export interface TourProps {
   onStepsEnd?: () => void;
 }
 
-export const Tour:FC<TourProps> = (props) => {
+export const Tour: FC<TourProps> = (props) => {
   const {
     step = 0,
     steps,
@@ -43,6 +43,8 @@ export const Tour:FC<TourProps> = (props) => {
   const currentContainerElement = getContainer?.() || document.documentElement;
 
   const [done, setDone] = useState(false);
+
+  const [isMaskMoving, setIsMaskMoving] = useState<boolean>(false);
 
   const getCurrentStep = () => {
     return steps[currentStep];
@@ -86,12 +88,12 @@ export const Tour:FC<TourProps> = (props) => {
     const operation = (
       <div className={'tour-operation'}>
         {
-          currentStep !== 0 && 
-            <Button
-                className={'back'}
-                onClick={() => back()}>
-                {'上一步'}
-            </Button>
+          currentStep !== 0 &&
+          <Button
+            className={'back'}
+            onClick={() => back()}>
+            {'上一步'}
+          </Button>
         }
         <Button
           className={'forward'}
@@ -103,10 +105,10 @@ export const Tour:FC<TourProps> = (props) => {
     );
 
     return (
-      <Popover
+      isMaskMoving ? wrapper : <Popover
         content={<div>
-            {content}
-            {operation}
+          {content}
+          {operation}
         </div>}
         open={true}
         placement={getCurrentStep()?.placement}>
@@ -115,17 +117,26 @@ export const Tour:FC<TourProps> = (props) => {
     );
   };
 
+  // 这里的目的是在 dom 渲染完之后，触发重新渲染，从而渲染这个 Tour 组件
+  // 因为我们需要获取到当前选中元素的位置，所以需要在 dom 渲染完之后，再获取到这个元素的位置
   const [, setRenderTick] = useState<number>(0);
 
   useEffect(() => {
-    setRenderTick(1)    
+    setRenderTick(1)
   }, []);
-  
-  if(!currentSelectedElement || done) {
+
+  // 第一次渲染的时候，元素是 null，触发重新渲染之后，就会渲染下面的 Mask 了
+  if (!currentSelectedElement || done) {
     return null;
   }
 
   const mask = <Mask
+    onAnimationStart={() => {
+      setIsMaskMoving(true);
+    }}
+    onAnimationEnd={() => {
+      setIsMaskMoving(false);
+    }}
     container={currentContainerElement}
     element={currentSelectedElement}
     renderMaskContent={(wrapper) => renderPopover(wrapper)}
